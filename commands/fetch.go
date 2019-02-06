@@ -251,6 +251,14 @@ func (f Fetch) Execute(args []string) error {
 	return DownloadReleases(f.logger, assetsLock, assets.CompiledReleases.Bucket, MatchedS3Objects, fileCreator, downloader, f.Options.DownloadThreads)
 }
 
+type CustomError struct {
+	Message string
+}
+
+func (CustomError e) Error() string {
+	return e.Message
+}
+
 func (f Fetch) Usage() jhanda.Usage {
 	return jhanda.Usage{
 		Description:      "Fetches releases listed in assets file from S3 and downloads it locally",

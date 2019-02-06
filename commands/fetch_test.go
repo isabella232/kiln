@@ -37,6 +37,17 @@ compiled_releases:
 
 const MinimalAssetsLockContents = `---`
 
+const SingleAssetsLockContents = `
+---
+releases:
+- name: some-release
+  version: 1.2.3
+
+stemcell_criteria:
+  os: some-os
+  version: '1.2'
+`
+
 var _ = Describe("Fetch", func() {
 	var (
 		fetch                 commands.Fetch
@@ -183,6 +194,21 @@ compiled_releases:
 						"--assets-file", badAssetsFilePath,
 					})
 					Expect(err).To(MatchError(fmt.Sprintf("open %s: no such file or directory", badAssetsFilePath)))
+				})
+			})
+			Context("a file listed in assets.lock is not present in the S3 bucket", func() {
+				BeforeEach("", func() {
+					someAssetsLockPath = filepath.Join(tmpDir, "assets.lock")
+					err = ioutil.WriteFile(someAssetsLockPath, []byte(SingleAssetsLockContents), 0644)
+					Expect(err).NotTo(HaveOccurred())
+				})
+				It("returns an error", func() {
+					err := fetch.Execute([]string{
+						"--releases-directory", someReleasesDirectory,
+						"--assets-file", someAssetsLockPath,
+					})
+					Expect(err).To(HaveOccurred())
+					Expect(err).To(MatchError("Could not find compiled release: some-release, version: 1.2.3, stemcell OS: some-os, stemcell version: 1.2.  Does the corresponding file exist in the S3 bucket name \"some-bucket\"?  Does it's filename match the regular expression: \"TODO\"?"))
 				})
 			})
 		})
@@ -363,15 +389,6 @@ compiled_releases:
 			})
 		})
 
-		It("returns an error if the release does not exist", func() {
-			assetsLock.Releases = []cargo.Release{
-				{Name: "not-real", Version: "1.2.3"},
-			}
-
-			err = commands.DownloadReleases(logger, assetsLock, bucket, matchedS3Objects, fileCreator, fakeDownloader, 0)
-			Expect(err).To(HaveOccurred())
-			Expect(err).To(MatchError("Compiled release: not-real, version: 1.2.3, stemcell OS: ubuntu-trusty, stemcell version: 1234, not found"))
-		})
 	})
 
 	Describe("Usage", func() {
@@ -383,4 +400,4 @@ compiled_releases:
 			}))
 		})
 	})
-})
+
