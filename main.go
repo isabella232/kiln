@@ -135,6 +135,7 @@ func main() {
 		FS:             osfs.New(""),
 		KilnfileLoader: cargo.KilnfileLoader{},
 		UploaderConfig: uploaderConfig,
+		Result:         os.Stdout,
 	}
 
 	err = commandSet.Execute(command, args)
