@@ -12,7 +12,7 @@ import (
 //go:generate counterfeiter -o ./fakes/release_source.go --fake-name ReleaseSource . ReleaseSource
 type ReleaseSource interface {
 	GetMatchedReleases(release.ReleaseRequirementSet) ([]release.RemoteRelease, error)
-	DownloadReleases(releasesDir string, matchedS3Objects []release.RemoteRelease, downloadThreads int) (release.LocalReleaseSet, error)
+	DownloadReleases(releasesDir string, matchedS3Objects []release.RemoteRelease, downloadThreads int) ([]release.LocalRelease, error)
 	ID() string
 }
 
