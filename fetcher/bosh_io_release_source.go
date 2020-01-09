@@ -117,7 +117,7 @@ func (r BOSHIOReleaseSource) DownloadReleases(releaseDir string, remoteReleases 
 			return nil, err
 		}
 
-		filePath := filepath.Join(releaseDir, fmt.Sprintf("%s-%s.tgz", rel.ReleaseID.Name, rel.ReleaseID.Version))
+		filePath := filepath.Join(releaseDir, fmt.Sprintf("%s-%s.tgz", rel.Name, rel.Version))
 
 		out, err := os.Create(filePath)
 		if err != nil {
